@@ -1,17 +1,19 @@
-
-FROM python:latest
+FROM python:3.8-slim
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y git python3-pip ffmpeg
 
-RUN apt update && apt upgrade -y
-RUN apt install git python3-pip ffmpeg -y
+# Copy requirements.txt separately to leverage Docker cache
+COPY requirements.txt .
 
+# Install dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
 COPY . .
 
-RUN pip3 install -r requirements.txt
-
-COPY . /app
-
-CMD python3 bot.py
+# Set the default command to run your application
+CMD ["python3", "bot.py"]
